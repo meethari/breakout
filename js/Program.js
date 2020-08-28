@@ -1,5 +1,5 @@
 "use strict";
-/* exported Porgram */
+/* exported Program */
 class Program extends UniformProvider {
   constructor(gl, vertexShader, fragmentShader) {
     super("program");

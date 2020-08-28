@@ -61,10 +61,9 @@ class App{
     const pendingResourceNames = Object.keys(this.gl.pendingResources);
     if (pendingResourceNames.length === 0) {
       this.scene.update(this.gl, this.keysPressed);
-      this.overlay.innerHTML = "Ready.";
+      //this.overlay.innerHTML = "Ready.";
     } else {
-      this.overlay.innerHTML =
-       `<font color="red">Loading: ${pendingResourceNames}</font>`;
+      // this.overlay.innerHTML = `<font color="red">Loading: ${pendingResourceNames}</font>`;
     }
 
     // refresh

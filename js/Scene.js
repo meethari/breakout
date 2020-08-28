@@ -5,6 +5,10 @@ class Scene extends UniformProvider {
     super("scene");
     this.programs = [];
 
+    // Overlay element to print score
+    const overlay = document.getElementById("overlay");
+    this.overlay = overlay
+
     // Shaders
     this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle-vs.glsl");
     this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid-fs.glsl");
@@ -199,5 +203,8 @@ class Scene extends UniformProvider {
     for (let idx = 0; idx < this.gameObjects.length; idx++) {
       this.gameObjects[idx].draw(this, this.camera)
     }
+
+    // print on the overlay
+    this.overlay.innerHTML = `Ball velocity: x ${this.ball.velocity.x} y ${this.ball.velocity.y}`
   }
 }
