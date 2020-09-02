@@ -58,47 +58,7 @@ class Scene extends UniformProvider {
 
     // Game Objects
     this.gameObjects = []
-    this.bricks = []
-
-    /* Some back of the envelope calculation
-     * I want 7 rows, 10 cols of bricks
-     * thick - 0.12 with 0.03 gap
-     * width - 11 gaps, 10 cols = 2.0
-     * say 10 * 0.18 = 1.80
-     * 9 in the middle each 0.02 = 0.18
-     * edges get 0.01
-     * therefore, height is 0.12 (after scale)
-     * width is 0.18 (after scale)
-    */
-
-    for(var i = 0; i < 7; i++) {
-      // i is row
-      const colorMaterial = this.colorMaterials[i]
-      const colorBrickMesh = new Mesh(colorMaterial, this.rectGeometry)
-
-      const brickHeight = 0.09
-      const brickWidth = 0.18
-      const brickPoints = (i+1) * 10 // 10 for level 1, 20 for level 2 etc. etc.
-
-      for (var j = 0; j < 10; j++) {
-        // j is column
-        var brick = new GameObject(colorBrickMesh)
-        brick.scale = new Vec3(0.18/0.2, brickHeight/0.02, 0.0)
-        brick.position.x  = -0.99 + 0.09 + j * 0.20
-        brick.position.y = 0.85 - i * (brickHeight + 0.03)
-        brick.bottomY = brick.position.y - brickHeight/2
-        brick.topY = brick.position.y + brickHeight/2 // add half height
-        brick.rightX = brick.position.x + brickWidth/2
-        brick.leftX = brick.position.x - brickWidth/2
-        brick.isBrick = true
-        brick.points = brickPoints
-        this.bricks.push(brick)
-      }
-
-      
-    }
-
-    this.gameObjects.push(...this.bricks)
+    this.addBricksToScene();
 
     // Game States
     this.BEFORE_START = 1
@@ -140,6 +100,49 @@ class Scene extends UniformProvider {
 
   }
 
+  addBricksToScene() {
+    this.bricks = [];
+
+    /* Some back of the envelope calculation
+     * I want 7 rows, 10 cols of bricks
+     * thick - 0.12 with 0.03 gap
+     * width - 11 gaps, 10 cols = 2.0
+     * say 10 * 0.18 = 1.80
+     * 9 in the middle each 0.02 = 0.18
+     * edges get 0.01
+     * therefore, height is 0.12 (after scale)
+     * width is 0.18 (after scale)
+    */
+    for (var i = 0; i < 7; i++) {
+      // i is row
+      const colorMaterial = this.colorMaterials[i];
+      const colorBrickMesh = new Mesh(colorMaterial, this.rectGeometry);
+
+      const brickHeight = 0.09;
+      const brickWidth = 0.18;
+      const brickPoints = (i + 1) * 10; // 10 for level 1, 20 for level 2 etc. etc.
+
+      for (var j = 0; j < 10; j++) {
+        // j is column
+        var brick = new GameObject(colorBrickMesh);
+        brick.scale = new Vec3(0.18 / 0.2, brickHeight / 0.02, 0.0);
+        brick.position.x = -0.99 + 0.09 + j * 0.20;
+        brick.position.y = 0.85 - i * (brickHeight + 0.03);
+        brick.bottomY = brick.position.y - brickHeight / 2;
+        brick.topY = brick.position.y + brickHeight / 2; // add half height
+        brick.rightX = brick.position.x + brickWidth / 2;
+        brick.leftX = brick.position.x - brickWidth / 2;
+        brick.isBrick = true;
+        brick.points = brickPoints;
+        this.bricks.push(brick);
+      }
+
+
+    }
+
+    this.gameObjects.push(...this.bricks);
+  }
+
   hitBrick(brick) {
     this.score += brick.points
     this.brickCount += 1
@@ -155,11 +158,13 @@ class Scene extends UniformProvider {
 
   resetGame() {
     this.gameState = this.BEFORE_START
+    this.addBricksToScene()
 
     this.score = 0
     this.brickCount = 0
     this.lives = 3
 
+    this.avatar.position.set (0.0, -0.9, 0.0)
     this.ball.position.set(this.avatar.position.plus(0, 0.03, 0))
     this.ball.velocity.set(0, 0, 0)
   }
