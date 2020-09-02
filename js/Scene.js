@@ -77,7 +77,7 @@ class Scene extends UniformProvider {
     // width: 0.2, height: 0.02
     paddle.width = 0.2
 
-    var ball = new BallObject(this.ballMesh);
+    var ball = new BallObject(this.ballMesh, this.hitBrick, this.lostLife);
     this.gameObjects.push(paddle)
     this.gameObjects.push(ball)
 
@@ -120,7 +120,7 @@ class Scene extends UniformProvider {
 
       const brickHeight = 0.09;
       const brickWidth = 0.18;
-      const brickPoints = (i + 1) * 10; // 10 for level 1, 20 for level 2 etc. etc.
+      const brickPoints = (7 - i) * 10; // 10 for level 1, 20 for level 2 etc. etc.
 
       for (var j = 0; j < 10; j++) {
         // j is column
@@ -152,8 +152,18 @@ class Scene extends UniformProvider {
   }
 
   lostLife() {
-    // TODO
-    // Laip a tholachitiye pa
+    this.lives -= 1
+    this.resetAfterLifeLost()
+    if (this.lives == 0) {
+      this.gameState = this.GAME_LOST
+    }
+  }
+
+  resetAfterLifeLost() {
+    this.avatar.position.set (0.0, -0.9, 0.0)
+    this.ball.position.set(this.avatar.position.plus(0, 0.03, 0))
+    this.ball.velocity.set(0, 0, 0)
+    this.gameState = this.BEFORE_START
   }
 
   resetGame() {

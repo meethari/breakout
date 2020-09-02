@@ -1,7 +1,9 @@
 class BallObject extends GameObject {
-    constructor(mesh) {
+    constructor(mesh, hitBrick, lostLife) {
         super(mesh)
         this.radius = 0.02
+        this.hitBrick = hitBrick
+        this.lostLife = lostLife
     }
 
     control(keysPressed, gameObjects, dt) {
@@ -44,6 +46,7 @@ class BallObject extends GameObject {
             // this.velocity.y = Math.abs(this.velocity.y)
             // No more bottom bounce. If this happens, you lose!
             // console.log("bottom bounce")
+            this.lostLife()
         }
     }
 
@@ -52,6 +55,7 @@ class BallObject extends GameObject {
         if (this.position.x < brick.rightX && this.position.x > brick.leftX && this.position.y < brick.bottomY && brick.bottomY - this.position.y < this.radius) {
             // check if the ball is between the right and left bounds, is below the brick, and is within radius distance of brick
             this.velocity.y = -Math.abs(this.velocity.y)
+            this.hitBrick(brick)
             this.deleteObjFromGameObjects(brick, gameObjects)
 
         } 
@@ -59,18 +63,21 @@ class BallObject extends GameObject {
         else if (this.position.x < brick.rightX && this.position.x > brick.leftX && this.position.y > brick.topY && this.position.y - brick.topY < this.radius) {
             // check if the ball is between the right and left bounds, is below the brick, and is within radius distance of brick
             this.velocity.y = Math.abs(this.velocity.y)
+            this.hitBrick(brick)
             this.deleteObjFromGameObjects(brick, gameObjects)
         } 
         // left wall
         else if (this.position.y < brick.topY && this.position.y > brick.bottomY && this.position.x < brick.leftX && brick.leftX - this.position.x < this.radius) {
             // console.log("left bounce")
             this.velocity.x = -Math.abs(this.velocity.x)
+            this.hitBrick(brick)
             this.deleteObjFromGameObjects(brick, gameObjects)
         } 
         // right wall
         else if (this.position.y < brick.topY && this.position.y > brick.bottomY  && this.position.x > brick.rightX && this.position.x - brick.rightX < this.radius) {
             // console.log("right bounce")
             this.velocity.x = Math.abs(this.velocity.x)
+            this.hitBrick(brick)
             this.deleteObjFromGameObjects(brick, gameObjects)
         }
         
