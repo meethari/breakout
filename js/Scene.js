@@ -5,6 +5,10 @@ class Scene extends UniformProvider {
     super("scene");
     this.programs = [];
 
+    // bind this to some critical functions
+    this.lostLife = this.lostLife.bind(this)
+    this.hitBrick = this.hitBrick.bind(this)
+
     // Overlay element to print score
     const overlay = document.getElementById("overlay");
     this.overlay = overlay
@@ -74,6 +78,7 @@ class Scene extends UniformProvider {
 
       const brickHeight = 0.09
       const brickWidth = 0.18
+      const brickPoints = (i+1) * 10 // 10 for level 1, 20 for level 2 etc. etc.
 
       for (var j = 0; j < 10; j++) {
         // j is column
@@ -86,6 +91,7 @@ class Scene extends UniformProvider {
         brick.rightX = brick.position.x + brickWidth/2
         brick.leftX = brick.position.x - brickWidth/2
         brick.isBrick = true
+        brick.points = brickPoints
         this.bricks.push(brick)
       }
 
@@ -100,6 +106,10 @@ class Scene extends UniformProvider {
     this.GAME_LOST = 3
     this.GAME_WON = 4
     this.gameState = this.BEFORE_START
+
+    this.score = 0
+    this.brickCount = 0
+    this.lives = 3
 
     var paddle = new GameObject(this.paddleMesh);
     paddle.isPaddle = true
@@ -130,6 +140,30 @@ class Scene extends UniformProvider {
 
   }
 
+  hitBrick(brick) {
+    this.score += brick.points
+    this.brickCount += 1
+    if (this.brickCount == 70) {
+      this.gameState = this.GAME_WON
+    }
+  }
+
+  lostLife() {
+    // TODO
+    // Laip a tholachitiye pa
+  }
+
+  resetGame() {
+    this.gameState = this.BEFORE_START
+
+    this.score = 0
+    this.brickCount = 0
+    this.lives = 3
+
+    this.ball.position.set(this.avatar.position.plus(0, 0.03, 0))
+    this.ball.velocity.set(0, 0, 0)
+  }
+
   resize(gl, canvas) {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
@@ -149,31 +183,39 @@ class Scene extends UniformProvider {
     this.timeAtLastFrame = timeAtThisFrame;
     const t = (timeAtThisFrame - this.timeAtFirstFrame) / 1000.0;
 
+    // Enable paddle movement
     // logic to prevent paddles from going beyond bounds
+    if (keysPressed["LEFT"] == true)
+    this.avatar.position.x =  Math.max((this.avatar.position.x - 2* dt), -1);
+
+    if (keysPressed["RIGHT"] == true)
+    this.avatar.position.x = Math.min((this.avatar.position.x + 2* dt), +1);
+
+    // General state management
     if (this.gameState == this.BEFORE_START) {
+      // make sure that the ball moves along with the paddle, but only before the game starts
+      this.ball.position.set(this.avatar.position.plus(0, 0.03, 0))
       if(keysPressed["SPACE"] == true) {
         const speed = 1.0
         var theta = Math.PI * Math.random() * (1/2) + Math.PI/4 // random angle from pi/4 - 3pi/4
         this.ball.velocity = new Vec3(speed * Math.cos(theta), speed * Math.sin(theta), 0.0)
-        // debugging: only goes left
-        //this.ball.velocity  = new Vec3(-1.0, 0.0, 0.0)
         this.gameState = this.RUNNING
       }
     }
     else if (this.gameState == this.RUNNING) {
       // gotta throw this into control
-      if (keysPressed["LEFT"] == true)
-        this.avatar.position.x =  Math.max((this.avatar.position.x - 2* dt), -1);
-
-      if (keysPressed["RIGHT"] == true)
-        this.avatar.position.x = Math.min((this.avatar.position.x + 2* dt), +1);
       
+      // TODO: remove this. Only for debugging purposes
       if (keysPressed["R"] == true) {
-        this.gameState = this.BEFORE_START
-        this.ball.position.set(this.avatar.position.plus(0, 0.03, 0))
-        this.ball.velocity.set(0, 0, 0)
-
+        this.resetGame()
       }
+    }
+    else if (this.gameState == this.GAME_WON) {
+      alert('You won the game. Congrats!')
+      this.resetGame()
+    } else if (this.gameState == this.GAME_LOST) {
+      alert(`You lost. Final score: ${this.score}`)
+      this.resetGame()
     }
 
     // clear the screen
@@ -205,6 +247,6 @@ class Scene extends UniformProvider {
     }
 
     // print on the overlay
-    this.overlay.innerHTML = `Ball velocity: x ${this.ball.velocity.x} y ${this.ball.velocity.y}`
+    this.overlay.innerHTML = `Score: ${this.score}<br/>Lives: ${this.lives}`
   }
 }
