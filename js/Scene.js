@@ -65,7 +65,14 @@ class Scene extends UniformProvider {
     this.RUNNING = 2
     this.GAME_LOST = 3
     this.GAME_WON = 4
+    this.PAUSE = 5
     this.gameState = this.BEFORE_START
+
+    // Pause state is used to save the velocity of the ball before and after pause
+    this.pauseState = {
+      ballVelocity: new Vec3(0.0, 0.0, 0.0),
+      previousState: this.gameState 
+    }
 
     this.score = 0
     this.brickCount = 0
@@ -146,6 +153,7 @@ class Scene extends UniformProvider {
   hitBrick(brick) {
     this.score += brick.points
     this.brickCount += 1
+    console.log(this.brickCount)
     if (this.brickCount == 70) {
       this.gameState = this.GAME_WON
     }
@@ -188,6 +196,22 @@ class Scene extends UniformProvider {
 
   }
 
+  pauseGame() {
+    this.pauseState.ballVelocity.set(this.ball.velocity)
+    this.ball.velocity.set(0.0, 0.0, 0.0)
+
+    this.pauseState.previousState = this.gameState
+    this.gameState = this.PAUSE
+  }
+
+  resumeGame() {
+    this.ball.velocity.set(this.pauseState.ballVelocity)
+    this.pauseState.ballVelocity.set(0.0, 0.0, 0.0)
+
+    this.gameState = this.pauseState.previousState
+    this.pauseState.previousState = this.PAUSE
+  }
+
 
   update(gl, keysPressed) {
     //jshint bitwise:false
@@ -200,11 +224,23 @@ class Scene extends UniformProvider {
 
     // Enable paddle movement
     // logic to prevent paddles from going beyond bounds
-    if (keysPressed["LEFT"] == true)
-    this.avatar.position.x =  Math.max((this.avatar.position.x - 2* dt), -1);
+    if (this.gameState == this.BEFORE_START | this.gameState == this.RUNNING) {
+      if (keysPressed["LEFT"] == true)
+      this.avatar.position.x =  Math.max((this.avatar.position.x - 2* dt), -1);
 
-    if (keysPressed["RIGHT"] == true)
-    this.avatar.position.x = Math.min((this.avatar.position.x + 2* dt), +1);
+      if (keysPressed["RIGHT"] == true)
+      this.avatar.position.x = Math.min((this.avatar.position.x + 2* dt), +1);
+    }
+
+    // toggle pausing and resuming 
+    if (keysPressed["ESCAPE"] == true) {
+      keysPressed["ESCAPE"] = false
+      if (this.gameState != this.PAUSE) {
+        this.pauseGame()
+      } else {
+        this.resumeGame()
+      }
+    }
 
     // General state management
     if (this.gameState == this.BEFORE_START) {
@@ -218,7 +254,6 @@ class Scene extends UniformProvider {
       }
     }
     else if (this.gameState == this.RUNNING) {
-      // gotta throw this into control
       
       // TODO: remove this. Only for debugging purposes
       if (keysPressed["R"] == true) {
