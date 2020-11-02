@@ -13,6 +13,18 @@ class Scene extends UniformProvider {
     const overlay = document.getElementById("overlay");
     this.overlay = overlay
 
+    // Grab the result screen
+    const resultScreen = document.getElementById("resultscreen")
+    this.resultScreen = resultScreen
+
+    // Other resultScreen related elements
+    this.resultScreenElements = {
+      score: document.getElementById("resultscreen__score"),
+      lives: document.getElementById("resultscreen__lives"),
+      result: document.getElementById("resultscreen__result"),
+      modal: document.getElementById("resultscreen__modal")
+    }
+
     // Shaders
     this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle-vs.glsl");
     this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid-fs.glsl");
@@ -134,7 +146,7 @@ class Scene extends UniformProvider {
         var brick = new GameObject(colorBrickMesh);
         brick.scale = new Vec3(0.18 / 0.2, brickHeight / 0.02, 0.0);
         brick.position.x = -0.99 + 0.09 + j * 0.20;
-        brick.position.y = 0.85 - i * (brickHeight + 0.03);
+        brick.position.y = 0.80 - i * (brickHeight + 0.03);
         brick.bottomY = brick.position.y - brickHeight / 2;
         brick.topY = brick.position.y + brickHeight / 2; // add half height
         brick.rightX = brick.position.x + brickWidth / 2;
@@ -176,6 +188,7 @@ class Scene extends UniformProvider {
 
   resetGame() {
     this.gameState = this.BEFORE_START
+    // TODO: code to delete all bricks from screen first. Maybe we have too many bricks?
     this.addBricksToScene()
 
     this.score = 0
@@ -210,6 +223,18 @@ class Scene extends UniformProvider {
 
     this.gameState = this.pauseState.previousState
     this.pauseState.previousState = this.PAUSE
+  }
+
+  displayLoseScreen() {
+    this.resultScreen.style.display = 'inline'
+    this.resultScreenElements.result.innerHTML = 'lost :('
+    this.resultScreenElements.score.innerHTML = this.score
+    this.resultScreenElements.lives.innerHTML = this.lives
+    this.resultScreenElements.modal.style.backgroundColor = 'red'
+  }
+
+  clearResultScreen() {
+    this.resultScreen.style.display = 'none'
   }
 
 
@@ -261,10 +286,14 @@ class Scene extends UniformProvider {
       }
     }
     else if (this.gameState == this.GAME_WON) {
-      alert('You won the game. Congrats!')
+      //alert('You won the game. Congrats!')
+      
       this.resetGame()
     } else if (this.gameState == this.GAME_LOST) {
-      alert(`You lost. Final score: ${this.score}`)
+      // alert(`You lost. Final score: ${this.score}`)
+      
+
+      this.displayLoseScreen()
       this.resetGame()
     }
 

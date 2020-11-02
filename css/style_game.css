@@ -1,3 +1,7 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
 * {
 	margin: 0;
 	padding: 0;
@@ -19,7 +23,6 @@
     left: 10px;
     top: 10px;
 	z-index: 20;
-	font-family: Arial, Helvetica, sans-serif;
 }
 
 #canvas {
@@ -35,3 +38,28 @@
     overflow: hidden;
 }
 
+#resultscreen {
+	display: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 30;
+	background-color: rgba(255,255,255,0.9);
+    overflow: hidden;
+}
+
+#resultscreen__modal {
+	position: absolute;
+	opacity: 1;
+	top: 40%;
+	left: 50%;
+	padding: 2%;
+	width: 35%;
+	background-color: white;
+	transform: translate(-50%, -50%);
+	text-align: center;
+}
