@@ -305,7 +305,7 @@ class Scene extends UniformProvider {
       
       // TODO: remove this. Only for debugging purposes
       if (keysPressed["R"] == true) {
-        this.resetGame()
+        // this.resetGame()
       }
     }
     else if (this.gameState == this.GAME_WON) {
