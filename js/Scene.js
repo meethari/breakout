@@ -119,8 +119,19 @@ class Scene extends UniformProvider {
 
   }
 
+  removeAllBricks() {
+    // keep all the elements which don't have isBrick
+    var newArray = []
+    for (var i = 0; i < this.gameObjects.length; i++) {
+      if (!this.gameObjects[i].isBrick) {
+        newArray.push(this.gameObjects[i])
+      }
+    }
+    this.gameObjects = newArray
+  }
+
   addBricksToScene() {
-    this.bricks = [];
+    var brickList = [];
 
     /* Some back of the envelope calculation
      * I want 7 rows, 10 cols of bricks
@@ -153,13 +164,13 @@ class Scene extends UniformProvider {
         brick.leftX = brick.position.x - brickWidth / 2;
         brick.isBrick = true;
         brick.points = brickPoints;
-        this.bricks.push(brick);
+        brickList.push(brick);
       }
 
 
     }
 
-    this.gameObjects.push(...this.bricks);
+    this.gameObjects.push(...brickList);
   }
 
   hitBrick(brick) {
@@ -173,9 +184,10 @@ class Scene extends UniformProvider {
 
   lostLife() {
     this.lives -= 1
-    this.resetAfterLifeLost()
     if (this.lives == 0) {
       this.gameState = this.GAME_LOST
+    } else {
+      this.resetAfterLifeLost()
     }
   }
 
@@ -188,7 +200,7 @@ class Scene extends UniformProvider {
 
   resetGame() {
     this.gameState = this.BEFORE_START
-    // TODO: code to delete all bricks from screen first. Maybe we have too many bricks?
+    this.removeAllBricks()
     this.addBricksToScene()
 
     this.score = 0
