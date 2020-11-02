@@ -225,6 +225,14 @@ class Scene extends UniformProvider {
     this.pauseState.previousState = this.PAUSE
   }
 
+  displayWinScreen() {
+    this.resultScreen.style.display = 'inline'
+    this.resultScreenElements.result.innerHTML = 'won!'
+    this.resultScreenElements.score.innerHTML = this.score
+    this.resultScreenElements.lives.innerHTML = this.lives
+    this.resultScreenElements.modal.style.backgroundColor = 'green'
+  }
+
   displayLoseScreen() {
     this.resultScreen.style.display = 'inline'
     this.resultScreenElements.result.innerHTML = 'lost :('
@@ -257,15 +265,18 @@ class Scene extends UniformProvider {
       this.avatar.position.x = Math.min((this.avatar.position.x + 2* dt), +1);
     }
 
-    // toggle pausing and resuming 
-    if (keysPressed["ESCAPE"] == true) {
-      keysPressed["ESCAPE"] = false
-      if (this.gameState != this.PAUSE) {
-        this.pauseGame()
-      } else {
-        this.resumeGame()
+    // toggle pausing and resuming
+    if (this.gameState == this.RUNNING || this.gameState == this.PAUSE) {
+      if (keysPressed["ESCAPE"] == true) {
+        keysPressed["ESCAPE"] = false
+        if (this.gameState != this.PAUSE) {
+          this.pauseGame()
+        } else {
+          this.resumeGame()
+        }
       }
     }
+    
 
     // General state management
     if (this.gameState == this.BEFORE_START) {
@@ -286,46 +297,55 @@ class Scene extends UniformProvider {
       }
     }
     else if (this.gameState == this.GAME_WON) {
-      //alert('You won the game. Congrats!')
-      
-      this.resetGame()
-    } else if (this.gameState == this.GAME_LOST) {
-      // alert(`You lost. Final score: ${this.score}`)
-      
-
+      this.displayWinScreen()
+      if (keysPressed['ENTER']) {
+        this.resetGame()
+        this.clearResultScreen()
+      }
+    } 
+    else if (this.gameState == this.GAME_LOST) {
       this.displayLoseScreen()
-      this.resetGame()
+      if (keysPressed['ENTER']) {
+        this.resetGame()
+        this.clearResultScreen()
+      }
     }
 
-    // clear the screen
-    gl.clearColor(1, 1, 1, 1.0);
-    gl.clearDepth(1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // update the game only in valid game states
 
-    // control loop
+    if (this.gameState == this.RUNNING || this.gameState == this.BEFORE_START) {
+      // clear the screen
+      gl.clearColor(1, 1, 1, 1.0);
+      gl.clearDepth(1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    for (let idx = 0; idx < this.gameObjects.length; idx++) {
-      if (this.gameObjects[idx].control)
-        this.gameObjects[idx].control(keysPressed, this.gameObjects, dt)
+      // control loop
+
+      for (let idx = 0; idx < this.gameObjects.length; idx++) {
+        if (this.gameObjects[idx].control)
+          this.gameObjects[idx].control(keysPressed, this.gameObjects, dt)
+      }
+
+
+      // update loop
+
+      this.camera.update(dt);
+
+      for (let idx = 0; idx < this.gameObjects.length; idx++) {
+        if (this.gameObjects[idx].move)
+          this.gameObjects[idx].move(dt)
+      }
+
+
+      // draw loop
+      for (let idx = 0; idx < this.gameObjects.length; idx++) {
+        this.gameObjects[idx].draw(this, this.camera)
+      }
+
+      // print on the overlay
+      this.overlay.innerHTML = `Score: ${this.score}<br/>Lives: ${this.lives}`
     }
 
-
-    // update loop
-
-    this.camera.update(dt);
-
-    for (let idx = 0; idx < this.gameObjects.length; idx++) {
-      if (this.gameObjects[idx].move)
-        this.gameObjects[idx].move(dt)
-    }
-
-
-    // draw loop
-    for (let idx = 0; idx < this.gameObjects.length; idx++) {
-      this.gameObjects[idx].draw(this, this.camera)
-    }
-
-    // print on the overlay
-    this.overlay.innerHTML = `Score: ${this.score}<br/>Lives: ${this.lives}`
+    
   }
 }
