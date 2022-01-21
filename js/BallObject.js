@@ -88,7 +88,18 @@ class BallObject extends GameObject {
         const paddleLeftX = paddle.position.x - paddle.width/2
         const paddleRightX = paddle.position.x + paddle.width/2
         if (this.position.y > paddle.position.y && this.position.y - paddle.position.y < this.radius && this.position.x > paddleLeftX && this.position.x < paddleRightX) {
+            // curved paddle implementation
+            const paddleDisplacement = (this.position.x - paddle.position.x)/ (paddle.width/2)
+            // ranges from -1 to +1
+            // positive - to the right, negative - to the left
             this.velocity.y = Math.abs(this.velocity.y)
+            // pi rad - 180
+            // rotate the velocity by -pi/10 to +pi/10 to simulate a curve.  
+            const rotateAngle = -paddleDisplacement * (Math.PI / 20)
+            const xVel = this.velocity.x * Math.cos(rotateAngle) - this.velocity.y * Math.sin(rotateAngle);
+            const yVel = this.velocity.x * Math.sin(rotateAngle) + this.velocity.y * Math.cos(rotateAngle);
+            this.velocity.x = xVel;
+            this.velocity.y = yVel;
         }
     }
 }
